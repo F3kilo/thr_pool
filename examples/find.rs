@@ -1,23 +1,29 @@
 use std::sync::{mpsc, Arc};
 use std::thread;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use thr_pool::ThreadPool;
 
 fn main() {
     let data: Arc<[_]> = (0..1_000_000_000).into_iter().rev().collect();
-    let to_find = 250_000_000;
+    let to_find = 100_000_000;
 
     println!("Testing st_find with {}", to_find);
     let found = measure(|| st_find(&data, to_find));
     println!("found: {:?}", found);
 
+    thread::sleep(Duration::from_secs(2));
+
+    println!("------------------",);
     println!("Testing mt_find with {}", to_find);
     let data_clone = Arc::clone(&data);
     let found = measure(|| mt_find(data_clone, to_find));
     println!("found: {:?}", found);
 
+    thread::sleep(Duration::from_secs(2));
+
+    println!("------------------",);
     println!("Testing mt_pool_find with {}", to_find);
-    let pool = ThreadPool::new(8).unwrap();
+    let pool = ThreadPool::new(40).unwrap();
     let found = measure(|| mt_pool_find(data, to_find, pool));
     println!("found: {:?}", found);
 }

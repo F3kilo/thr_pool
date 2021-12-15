@@ -1,4 +1,4 @@
-use std::sync::mpsc::Sender;
+use std::sync::mpsc::{Receiver, RecvError, Sender};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread::JoinHandle;
 use std::{mem, thread};
@@ -24,8 +24,8 @@ impl ThreadPool {
         for _ in 0..threads_count {
             let rx = rx.clone();
             let jh = thread::spawn(move || {
-                while let Ok(task) = rx.lock().unwrap().recv() {
-                    task()
+                while let Ok(t) = get_task(&rx) {
+                    t()
                 }
             });
             handles.push(jh);
@@ -44,6 +44,10 @@ impl ThreadPool {
         let task = Box::new(f);
         let _ = self.sender.as_ref().unwrap().send(task);
     }
+}
+
+fn get_task(recv: &Mutex<Receiver<Task>>) -> Result<Task, RecvError> {
+    recv.lock().unwrap().recv()
 }
 
 impl Drop for ThreadPool {
