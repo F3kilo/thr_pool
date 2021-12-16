@@ -7,6 +7,7 @@ use std::{mem, thread};
 
 type Task = Box<dyn FnOnce() + Send + 'static>;
 
+/// Basic thread pool
 #[derive(Debug, Clone)]
 pub struct ThreadPool {
     handles: Arc<Vec<JoinHandle<()>>>,
@@ -14,13 +15,18 @@ pub struct ThreadPool {
 }
 
 impl ThreadPool {
+    /// Create thread pool with `threads_count` system threads
     pub fn new(threads_count: usize) -> Option<Self> {
         if threads_count == 0 {
             return None;
         }
 
+        // channel to communicate with threads
         let (sender, rx) = mpsc::channel::<Task>();
+
+        // Receiver<T>: !Sync, mutex required
         let rx = Arc::new(Mutex::new(rx));
+
 
         let mut handles = Vec::with_capacity(threads_count);
         for _ in 0..threads_count {
@@ -39,10 +45,12 @@ impl ThreadPool {
         })
     }
 
+    /// Spawn new task for one of threads
     pub fn spawn<F>(&self, f: F)
     where
         F: FnOnce() + Send + 'static,
     {
+        // send boxed task to threads
         let task = Box::new(f);
         let _ = self.sender.as_ref().unwrap().send(task);
     }
@@ -52,6 +60,7 @@ fn get_task(recv: &Mutex<Receiver<Task>>) -> Result<Task, RecvError> {
     recv.lock().unwrap().recv()
 }
 
+/// Waits, when all threads finish their jobs
 impl Drop for ThreadPool {
     fn drop(&mut self) {
         let arc = mem::replace(&mut self.handles, Arc::new(Default::default()));
