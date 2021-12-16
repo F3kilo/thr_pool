@@ -1,3 +1,5 @@
+pub mod actor;
+
 use std::sync::mpsc::{Receiver, RecvError, Sender};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread::JoinHandle;
