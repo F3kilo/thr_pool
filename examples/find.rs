@@ -3,6 +3,8 @@ use std::thread;
 use std::time::{Duration, Instant};
 use thr_pool::ThreadPool;
 
+const CHUNK_SIZE: usize = 50_000;
+
 fn main() {
     let data: Arc<[_]> = (0..1_000_000_000).into_iter().rev().collect();
     let to_find = 100_000_000;
@@ -45,8 +47,6 @@ fn measure<T>(f: impl FnOnce() -> T) -> T {
     println!("Complete in: {:?}", duration);
     result
 }
-
-const CHUNK_SIZE: usize = 50_000;
 
 fn st_find(data: &[i32], val: i32) -> Option<usize> {
     data.iter()

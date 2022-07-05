@@ -27,17 +27,17 @@ impl ThreadPool {
         // Receiver<T>: !Sync, mutex required
         let rx = Arc::new(Mutex::new(rx));
 
-
-        let mut handles = Vec::with_capacity(threads_count);
-        for _ in 0..threads_count {
-            let rx = rx.clone();
-            let jh = thread::spawn(move || {
-                while let Ok(t) = get_task(&rx) {
-                    t()
-                }
-            });
-            handles.push(jh);
-        }
+        // Run system threads
+        let handles = (0..threads_count)
+            .map(|_| {
+                let rx = rx.clone();
+                thread::spawn(move || {
+                    while let Ok(t) = get_task(&rx) {
+                        t()
+                    }
+                })
+            })
+            .collect();
 
         Some(Self {
             handles: Arc::new(handles),
