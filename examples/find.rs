@@ -6,8 +6,8 @@ use thr_pool::ThreadPool;
 const CHUNK_SIZE: usize = 50_000;
 
 fn main() {
-    let data: Arc<[_]> = (0..1_000_000_000).into_iter().rev().collect();
-    let to_find = 100_000_000;
+    let data: Arc<[_]> = (0..10_000_000).into_iter().rev().collect();
+    let to_find = 1_000;
 
     println!("Testing st_find with {}", to_find);
     let found = measure(|| st_find(&data, to_find));
