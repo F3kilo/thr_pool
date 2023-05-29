@@ -12,7 +12,7 @@ fn main() {
     assert_send(RefCell::<()>::default());
     assert_sync(RefCell::<()>::default());
 
-    // `&RefCell: Send+!Sync`
+    // `&RefCell: !Send+!Sync`
     assert_send(&RefCell::<()>::default());
     assert_sync(&RefCell::<()>::default());
 
