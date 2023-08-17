@@ -63,7 +63,7 @@ fn get_task(recv: &Mutex<Receiver<Task>>) -> Result<Task, RecvError> {
 /// Waits, when all threads finish their jobs
 impl Drop for ThreadPool {
     fn drop(&mut self) {
-        let arc = mem::replace(&mut self.handles, Arc::new(Default::default()));
+        let arc = mem::take(&mut self.handles);
         if let Ok(handles) = Arc::try_unwrap(arc) {
             mem::drop(self.sender.take());
             for jh in handles {
