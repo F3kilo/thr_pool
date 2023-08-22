@@ -7,6 +7,10 @@ pub trait Actor: Sized + Send + 'static {
     type Message: Send + 'static;
 
     fn process_message(self, msg: Self::Message) -> Option<Self>;
+
+    fn name() -> &'static str {
+        std::any::type_name::<Self>()
+    }
 }
 
 /// Basic actor framework
@@ -21,6 +25,7 @@ impl System {
     pub fn run<A: Actor>(&mut self, actor: A) -> Sender<A::Message> {
         let (tx, rx) = mpsc::channel();
         let jh = thread::spawn(move || {
+            println!("actor {} started", A::name());
             let mut actor = actor;
             while let Ok(msg) = rx.recv() {
                 actor = match actor.process_message(msg) {
@@ -28,6 +33,7 @@ impl System {
                     None => break,
                 }
             }
+            println!("actor {} finished", A::name());
         });
         self.handles.push(jh);
 
