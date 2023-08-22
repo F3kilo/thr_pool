@@ -4,10 +4,10 @@ use std::thread;
 use std::time::{Duration, Instant};
 use thr_pool::ThreadPool;
 
-const CHUNK_SIZE: usize = 1000;
+const CHUNK_SIZE: usize = 10_000;
 
 fn main() {
-    let data: Arc<[_]> = (0..10_000_000).into_iter().rev().collect();
+    let data: Arc<[_]> = (0..100_000_000).into_iter().rev().collect();
     let to_find = 1_000;
 
     println!("Testing st_find with {}", to_find);
@@ -79,7 +79,9 @@ fn mt_find(data: Arc<[i32]>, val: i32) -> Option<usize> {
                 .find(|(_, v)| **v == val)
                 .map(|(i, _)| chunk_start + i);
 
-            tx.send(found)
+            if found.is_some() {
+                tx.send(found).unwrap();
+            }
         });
     }
 
@@ -112,7 +114,9 @@ fn mt_pool_find(data: Arc<[i32]>, val: i32, pool: ThreadPool) -> Option<usize> {
                 .find(|(_, v)| **v == val)
                 .map(|(i, _)| chunk_start + i);
 
-            let _ = tx.send(found);
+            if found.is_some() {
+                tx.send(found).unwrap();
+            }
         });
     }
 
