@@ -4,7 +4,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 use thr_pool::ThreadPool;
 
-const CHUNK_SIZE: usize = 10_000;
+const CHUNK_SIZE: usize = 1000;
 
 fn main() {
     let data: Arc<[_]> = (0..100_000_000).into_iter().rev().collect();

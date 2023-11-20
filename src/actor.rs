@@ -22,11 +22,10 @@ pub struct System {
 impl System {
     /// Run `actor`. It'll wait for messages and process them.
     /// Method returns channel to communicate with `actor`.
-    pub fn run<A: Actor>(&mut self, actor: A) -> Sender<A::Message> {
+    pub fn run<A: Actor>(&mut self, mut actor: A) -> Sender<A::Message> {
         let (tx, rx) = mpsc::channel();
         let jh = thread::spawn(move || {
             println!("actor {} started", A::name());
-            let mut actor = actor;
             while let Ok(msg) = rx.recv() {
                 actor = match actor.process_message(msg) {
                     Some(a) => a,
