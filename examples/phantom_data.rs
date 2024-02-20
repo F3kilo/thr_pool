@@ -1,6 +1,7 @@
 #![allow(dead_code, unused)]
 
 use std::marker::PhantomData;
+use std::rc::Rc;
 
 fn main() {
     let a = BytesRepr::<u32>{
@@ -12,4 +13,14 @@ fn main() {
 struct BytesRepr<T> {
     bytes: Vec<u8>,
     p: PhantomData<T>,
+}
+
+struct WithLifetime<'a> {
+    data: *const u8,
+    p: PhantomData<&'a ()>,
+}
+
+struct NonSendSync {
+    data: String,
+    p: PhantomData<Rc<()>>,
 }
