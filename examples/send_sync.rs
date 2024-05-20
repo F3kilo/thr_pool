@@ -5,28 +5,28 @@ use std::rc::Rc;
 
 fn main() {
     // Структуры с `Send + Sync` полями `Send + Sync`.
-    assert_send(BothStruct::default());
-    assert_sync(BothStruct::default());
+    assert_send::<BothStruct>();
+    assert_sync::<BothStruct>();
 
     // `RefCell: Send+!Sync`
-    assert_send(RefCell::<()>::default());
-    assert_sync(RefCell::<()>::default());
+    assert_send::<RefCell<()>>();
+    assert_sync::<RefCell<()>>();
 
     // `&RefCell: !Send+!Sync`
-    assert_send(&RefCell::<()>::default());
-    assert_sync(&RefCell::<()>::default());
+    assert_send::<&RefCell<()>>();
+    assert_sync::<&RefCell<()>>();
 
     // `Rc: !Send+!Sync`
-    assert_send(Rc::<()>::default());
-    assert_sync(Rc::<()>::default());
+    assert_send::<Rc<()>>();
+    assert_sync::<Rc<()>>();
 
     // Структуры с `!Send + !Sync` полями `!Send + !Sync`.
-    assert_send(NeitherStruct::default());
-    assert_sync(NeitherStruct::default());
+    assert_send::<NeitherStruct>();
+    assert_sync::<NeitherStruct>();
 }
 
-fn assert_send<T: Send>(_: T) {}
-fn assert_sync<T: Sync>(_: T) {}
+fn assert_send<T: Send>() {}
+fn assert_sync<T: Sync>() {}
 
 #[derive(Default)]
 struct BothStruct {
