@@ -45,7 +45,7 @@ impl Drop for System {
     fn drop(&mut self) {
         let handles = std::mem::take(&mut self.handles);
         for jh in handles {
-            jh.join().unwrap();
+            jh.join().unwrap(); // DON'T PANIC IN DROP!!!
         }
     }
 }
