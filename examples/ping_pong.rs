@@ -7,10 +7,10 @@ use thr_pool::actor::{Actor, System};
 fn main() {
     let mut system = System::default();
 
-    let pong = PongActor::new(String::from("Alice"));
+    let pong = PongActor;
     let pong_tx = system.run(pong);
 
-    let ping = PingActor::new(String::from("Bob"), pong_tx);
+    let ping = PingActor::new(pong_tx);
     let ping_tx = system.run(ping);
 
     let input = InputActor::new(ping_tx);
@@ -54,11 +54,11 @@ impl Actor for InputActor {
 
 // **** PING ****
 
-struct PingActor(String, Sender<PongMessage>);
+struct PingActor(Sender<PongMessage>);
 
 impl PingActor {
-    pub fn new(name: String, pong_tx: Sender<PongMessage>) -> Self {
-        Self(name, pong_tx)
+    pub fn new(pong_tx: Sender<PongMessage>) -> Self {
+        Self(pong_tx)
     }
 }
 
@@ -80,20 +80,14 @@ impl Actor for PingActor {
     fn process_message(self, msg: Self::Message) -> Option<Self> {
         let str = msg.into_string();
         println!("ping with message: {}", str);
-        self.1.send(PongMessage::new(str)).ok()?;
+        self.0.send(PongMessage::new(str)).ok()?;
         Some(self)
     }
 }
 
 // **** PONG ****
 
-struct PongActor(String);
-
-impl PongActor {
-    pub fn new(name: String) -> Self {
-        Self(name)
-    }
-}
+struct PongActor;
 
 struct PongMessage(String);
 
